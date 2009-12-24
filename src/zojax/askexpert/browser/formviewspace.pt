@@ -1,0 +1,19 @@
+<h1 class="z-form-label"
+    tal:condition="context/label" tal:content="context/label">Do something</h1>
+<div class="z-form-description"
+     tal:condition="context/description" tal:content="structure context/description"></div>
+
+<tal:block tal:content="structure pagelet:form.viewspaceInfo" />
+
+<div class="z-form-fieldset" tal:condition="context/widgets">
+  <tal:block tal:repeat="context context/widgets/values"
+       tal:content="structure pagelet:form.widget" />
+</div>
+
+<tal:block tal:condition="context/groups|nothing"
+     tal:repeat="context context/groups"
+     tal:content="structure pagelet:form" />
+
+<tal:block tal:condition="context/subforms|nothing"
+     tal:repeat="context context/subforms"
+     tal:content="structure pagelet:form" />

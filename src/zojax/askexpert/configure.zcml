@@ -1,0 +1,143 @@
+<configure
+   xmlns="http://namespaces.zope.org/zope"
+   xmlns:zojax="http://namespaces.zope.org/zojax"
+   i18n_domain="zojax.askexpert">
+
+  <permission
+     id="zojax.AddAskExpert"
+     title="Add ask expert"
+     description="Allow add ask expert forms to portal." />
+     
+  <permission
+     id="zojax.askexpert.SubmitForm"
+     title="Submit ask expert form" />
+     
+     
+  <zojax:permission
+       permission="zojax.askexpert.SubmitForm"
+       category="zojax.content.permissions.interfaces.IGeneralSettingsPermission" />
+
+  <!-- form -->
+  <zojax:content
+     title="Ask Expert Form"
+     name="askexpert.form"
+     schema=".interfaces.IForm"
+     contains=".interfaces.IGroupType
+               zojax.persistent.fields.interfaces.IFieldType
+               .interfaces.IFormDataStorageType"
+     description="User configurable form"
+     type="zojax.content.type.interfaces.IActivePortalType
+     zojax.persistent.fields.interfaces.IFieldsContainer
+     zojax.content.space.interfaces.IContentSpaceType"
+     class=".form.Form"
+     permission="zojax.AddAskExpert" />
+
+  <class class=".form.Form">
+    <implements interface="zojax.content.type.interfaces.IAnnotatableOrder" />
+    <implements interface="zojax.content.type.interfaces.IContainerContentsAware" />
+    <implements interface="zojax.content.type.interfaces.ISearchableContent" />
+
+    <require
+       permission="zope.View"
+       interface=".interfaces.IForm
+      zope.app.container.interfaces.IReadContainer" />
+    <require
+       permission="zojax.ModifyContent"
+       attributes="updateOrder"
+       set_schema=".interfaces.IForm"
+       interface="zope.app.container.interfaces.IWriteContainer" />
+  </class>
+
+  <!-- draft -->
+  <zojax:draft
+     content="askexpert.form"
+     publish="zojax.AddAskExpert" />
+
+  <!-- group -->
+  <zojax:content
+     title="Fields Group"
+     name="askexpert.group"
+     schema=".interfaces.IGroup"
+     type=".interfaces.IGroupType
+           zojax.content.type.interfaces.IActivePortalType"
+     class=".form.Group"
+     permission="zojax.AddAskExpert" />
+
+  <class class=".form.Group">
+    <require
+       permission="zope.View"
+       interface=".interfaces.IGroup" />
+    <require
+       permission="zojax.ModifyContent"
+       set_schema=".interfaces.IGroup" />
+  </class>
+
+  <!-- mail data storage -->
+  <zojax:content
+     title="Mail Data Storage"
+     name="askexpert.mailstorage"
+     schema=".interfaces.IMailDataStorage"
+     type=".interfaces.IFormDataStorageType
+           zojax.content.type.interfaces.IActivePortalType"
+     class=".mailstorage.MailDataStorage"
+     permission="zojax.AddAskExpert" />
+
+  <class class=".mailstorage.MailDataStorage">
+    <require
+       permission="zope.View"
+       interface="zojax.content.type.interfaces.IItem
+      .interfaces.IMailDataStorage" />
+    <require
+       permission="zojax.ModifyContent"
+       set_schema=".interfaces.IMailDataStorage" />
+  </class>
+
+  <!-- vocabulary -->
+  <utility
+     name="zojax.askexpert-formFields"
+     factory=".vocabulary.FormFieldsVocabulary" />
+
+  <utility
+     name="zojax.askexpert-portletFormFields"
+     factory=".vocabulary.PortletFormFieldsVocabulary" />
+
+  <utility
+     provides="zope.schema.interfaces.IVocabularyFactory"
+     component=".vocabulary.FormsVocabulary"
+     name="zojax.askexpert.forms"
+     />
+
+  <!-- permissions -->
+  <zojax:permission
+     permission="zojax.AddAskExpert"
+     category="zojax.content.permissions.interfaces.IAddPermission" />
+
+  <zojax:contentpermission
+     for="zojax.content.space.interfaces.IContentSpace"
+     contenttype="askexpert.form"
+     permission="zojax.AddAskExpert"
+     managepermission="zojax.ManageContentPermission"
+     class="zojax.content.permissions.permission.ContentPermission"
+     category="zojax.content.permissions.interfaces.IAddPermission" />
+     
+  <zojax:contentpermission
+     contenttype="askexpert.form"
+     permission="zojax.askexpert.SubmitForm"
+     managepermission="zojax.ManageContentPermission"
+     category="zojax.content.permissions.interfaces.IGeneralSettingsPermission" />
+
+ <!-- pagelet types -->
+  <zojax:pageletType
+     name="askexpert.form.portletview"
+     interface=".interfaces.IPortletFormView" />
+
+  <!-- browser views -->
+  <include package=".browser" />
+
+  <!-- portlets -->
+  <include package=".portlets" />
+
+  <!-- capability -->
+  <include file="capability.zcml" />
+
+</configure>

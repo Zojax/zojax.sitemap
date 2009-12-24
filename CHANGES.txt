@@ -1,0 +1,17 @@
+=======
+CHANGES
+=======
+
+
+0.1 (Unreleased)
+----------------
+
+- Initial import
+
+- capability added (Extensions)
+
+- form body correct html source display
+
+- draft to form
+
+- Added submit form permission

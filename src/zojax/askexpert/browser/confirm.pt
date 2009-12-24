@@ -1,0 +1,2 @@
+<tal:block content="structure context/confirm/cooked" />
+<a tal:attributes="href view/site_url">Return to main page</a>

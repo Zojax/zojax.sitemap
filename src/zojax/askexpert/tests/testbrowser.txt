@@ -1,0 +1,225 @@
+=============
+Ask expert
+=============
+
+    >>> from zope import component
+    >>> from zope.testbrowser.testing import Browser
+    >>> from zope.app.security.interfaces import IAuthentication
+    >>> from zojax.principal.profile.interfaces import IPersonalProfile
+
+    >>> auth = component.getUtility(IAuthentication)
+    >>> principal = auth.getPrincipal('zope.user')
+    >>> profile = IPersonalProfile(principal)
+
+    >>> admin = Browser()
+    >>> admin.addHeader("Authorization", "Basic mgr:mgrpw")
+    >>> admin.handleErrors = False
+
+    >>> user = Browser()
+    >>> user.addHeader("Authorization", "Basic user:userpw")
+    >>> user.handleErrors = False
+
+    >>> emails = []
+    >>> from email import message_from_string, quopriMIME
+    >>> def send(self, fromaddr, toaddr, message):
+    ...     message = message_from_string(message)
+    ...     emails.append((fromaddr, toaddr, message['subject'], message.get_payload(decode=1)))
+    >>> def getEMails(clear=True):
+    ...     global emails
+    ...     m = list(emails)
+    ...     if clear:
+    ...         emails = []
+    ...     return m
+
+    >>> from zope.sendmail.mailer import SMTPMailer
+    >>> SMTPMailer.send = send
+
+
+Create Form
+------------
+
+    >>> admin.open("http://localhost/portal/+/askexpert.form")
+    >>> admin.getControl('Title').value = 'Some Form'
+    >>> admin.getControl('Submit label').value = 'Submit question'
+    >>> admin.getControl('Body text', index=0).value = 'Some Body Text'
+    >>> admin.getControl('Confirm text', index=0).value = 'Some Confirm Text'
+    >>> admin.getControl('Add').click()
+    >>> admin.url
+    'http://localhost/portal/Form/'
+
+We add fields:
+    >>> admin.open('context.html')
+    >>> admin.getLink('Contents').click()
+
+    >>> admin.getLink('Text').click()
+    >>> admin.getControl('Title').value = u'Question'
+    >>> admin.getControl('Content short name').value = u'question'
+    >>> admin.getControl(name="content.add.buttons.add").click()
+    >>> admin.getControl(name="content.edit.buttons.cancel").click()
+
+    >>> admin.open('context.html')
+    >>> admin.getLink('Contents').click()
+    >>> admin.getLink('Text Line').click()
+    >>> admin.getControl('Title').value = u'Name'
+    >>> admin.getControl('Content short name').value = u'name'
+    >>> admin.getControl(name="content.add.buttons.add").click()
+    >>> admin.getControl(name="content.edit.buttons.cancel").click()
+
+    >>> admin.open('context.html')
+    >>> admin.getLink('Contents').click()
+    >>> admin.getLink('EMail').click()
+    >>> admin.getControl('Title').value = u'Email'
+    >>> admin.getControl('Content short name').value = u'email'
+    >>> admin.getControl(name="content.add.buttons.add").click()
+    >>> admin.getControl(name="content.edit.buttons.cancel").click()
+
+We add storages
+---------------
+
+    >>> admin.open('context.html')
+    >>> admin.getLink('Contents').click()
+    >>> admin.getLink('Mail Data Storage').click()
+    >>> admin.getControl('Email').value = 'answerer@some.com'
+    >>> admin.getControl('From name').value = 'Question Request'
+    >>> admin.getControl('From email address').value = 'question@some.com'
+    >>> admin.getControl(name="content.add.buttons.add").click()
+    >>> admin.url
+    'http://localhost/portal/Form/MailDataStorage/'
+
+Register form submission event subscriber
+
+    >>> submitted_data = {}
+    >>> from zojax.askexpert.interfaces import IFormSubmittedEvent
+    >>> @component.adapter(IFormSubmittedEvent)
+    ... def handler(e):
+    ...     global submitted_data
+    ...     submitted_data = e.data
+    >>> component.provideHandler(handler)
+
+We use form
+
+    >>> user.open('http://localhost/portal/Form')
+    >>> print user.contents
+    <html>
+    ...
+    <h1 class="z-form-label">Some Form</h1>
+    ...
+    </html>
+
+    >>> user.getControl('Question').value = 'what??'
+    >>> user.getControl('Name').value = 'Dumb Dumber'
+    >>> user.getControl('Email').value = 'dumb@dumb.com'
+    >>> user.getControl('Submit question').click()
+    >>> print user.contents
+    <html>
+    ...
+    <div id="z-portal-statusmessage"><div class="statusMessage">Request has been processed.</div>
+    ...
+    ...Some Confirm Text
+    <a href="http://localhost/portal/">Return to main page</a>
+    ...
+    </html>
+
+    >>> len(emails)
+    1
+
+    >>> emails[-1][0:3]
+    (u'Question Request <question@some.com>', (u'answerer@some.com',), 'Form has been processed: Some Form')
+
+    >>> print emails[-1][3]
+    <html>
+      <head><meta http-equiv="Cobtent-Language" content="en">
+      </head>
+      <body>
+        <b>Some Form ()</b>
+        <br>
+        <table border="0" width="550" cellspacing="0" cellpadding="3">
+            <tr>
+              <th colspan="2" align="left"></th>
+            </tr>
+            <tr>
+              <th align="right">Question</th>
+              <td>what??</td>
+            </tr>
+            <tr>
+              <th align="right">Name</th>
+              <td>Dumb Dumber</td>
+            </tr>
+            <tr>
+              <th align="right">Email</th>
+              <td>dumb@dumb.com</td>
+            </tr>
+            <tr>
+              <td><br><br></td>
+            </tr>
+        </table>
+      </body>
+    </html>
+
+    >>> sorted(submitted_data.keys())
+    ['email', 'name', 'question']
+
+Form portlet
+
+    >>> admin.open('http://localhost/portal/context.html/presentation/pm-columns.test/portlets.askexpertform/index.html')
+    >>> admin.getControl('Form', index=0).displayValue = ['Some Form']
+    >>> form = admin.getControl('Form', index=0).value[0]
+    >>> admin.getControl('Save').click()
+    >>> admin.open('http://localhost/portal/context.html/presentation/pm-columns.test/portlets.askexpertform/index.html?form.widgets.fields:list=question&form.widgets.redirectToForm:list=true&form.buttons.save=value&form.widgets.form:list='+form)
+
+    >>> user.open('http://localhost/portal/portlet.html')
+    >>> print user.contents
+    <html>
+    ...
+    ...<h2 class="z-portlet-header">Ask expert form</h2>
+      <div class="z-portlet-body">
+        <div class="z-portlet-item">
+          <div class="z-form z-form-standard"><form action="http://localhost/portal/Form/" method="post"
+          enctype="multipart/form-data" name="form" id="form">
+      <h1 class="z-form-label">Some Form</h1>
+      <div class="z-form-description">Some Body Text</div>
+    <div class="z-form-fieldset">
+    ...
+    </div>
+    </form>
+    ...
+    </html>
+
+    >>> emails = []
+    >>> user.getControl('Question').value = 'how things?'
+
+We see here only selected fields, not all
+    >>> user.getControl('Name').value = 'Another Dumb'
+    Traceback (most recent call last):
+    ...
+    LookupError: label 'Name'
+
+After submit we get redirected to real form with preselected values
+    >>> user.getControl('Submit question').click()
+    >>> user.url
+    'http://localhost/portal/Form/'
+
+And we have no portlet:
+    >>> '<h2 class="z-portlet-header">Form</h2>' not in user.contents
+    True
+
+Values are prefilled
+    >>> user.getControl('Question').value
+    'how things?'
+
+    >>> user.getControl('Name').value = 'Dumb Dumber'
+    >>> user.getControl('Email').value = 'dumb@dumb.com'
+    >>> user.getControl('Submit question').click()
+    >>> print user.contents
+    <html>
+    ...
+    <div id="z-portal-statusmessage"><div class="statusMessage">Request has been processed.</div>
+    ...
+    </html>
+
+    >>> len(emails)
+    1
+
+And we still have no portlet:
+    >>> '<h2 class="z-portlet-header">Form</h2>' not in user.contents
+    True

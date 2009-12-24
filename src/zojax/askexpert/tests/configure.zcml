@@ -1,0 +1,59 @@
+<configure
+   xmlns="http://namespaces.zope.org/zope"
+   xmlns:zojax="http://namespaces.zope.org/zojax">
+
+  <interface
+     name="DefaultSkin"
+     interface=".tests.IDefaultSkin"
+     type="zope.publisher.interfaces.browser.IBrowserSkinType" />
+
+  <zojax:content
+     title="Portal"
+     name="portal"
+     schema=".content.IPortal"
+     class=".content.Portal"
+     description="A portal."
+     type="zojax.content.type.interfaces.IInactiveType
+     zojax.content.space.interfaces.IRootSpaceType
+     zojax.content.space.interfaces.IContentSpaceType"
+     contains="zojax.content.space.interfaces.IContentSpaceType
+         zojax.content.space.interfaces.ISpaceContentType" />
+
+  <class class=".content.Portal">
+    <implements interface="zojax.catalog.interfaces.ICatalogAwareSite" />
+    <implements interface="zojax.content.type.interfaces.ISearchableContent" />
+    <implements interface="zojax.content.space.interfaces.IRootSpace" />
+    <implements interface="zojax.content.space.interfaces.IContentSpaceLayout" />
+
+    <require
+       permission="zope.View"
+       interface=".content.IPortal
+      zope.app.container.interfaces.IReadContainer
+      zojax.content.space.interfaces.IContentSpaceLayout" />
+    <require
+       permission="zojax.ModifyContent"
+       set_schema=".content.IPortal
+       zojax.content.space.interfaces.IContentSpaceLayout"
+       interface="zope.app.container.interfaces.IWriteContainer" />
+
+    <allow attributes="getSiteManager" />
+
+    <require
+       permission="zope.ManageServices"
+       attributes="setSiteManager" />
+  </class>
+
+  <zojax:portletManager
+     name="columns.test"
+     title="Test column portlets"
+     for="*"
+     schema="zojax.askexpert.tests.interfaces.IContentPortletsManagerConfiguration"
+     />
+
+
+  <zojax:pagelet
+   for="*"
+   name="portlet.html"
+   template="portlet.pt" />
+
+</configure>
