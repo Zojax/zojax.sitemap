@@ -4,12 +4,18 @@ Ask expert
 
     >>> from zope import component
     >>> from zope.testbrowser.testing import Browser
+    >>> from zope.app.component.hooks import setSite
+    >>> from zope.securitypolicy.interfaces import IPrincipalPermissionManager
     >>> from zope.app.security.interfaces import IAuthentication
     >>> from zojax.principal.profile.interfaces import IPersonalProfile
 
+    >>> root = getRootFolder()
+    >>> setSite(root)
+    >>> sm = root.getSiteManager()
     >>> auth = component.getUtility(IAuthentication)
     >>> principal = auth.getPrincipal('zope.user')
     >>> profile = IPersonalProfile(principal)
+    >>> profile.space
 
     >>> admin = Browser()
     >>> admin.addHeader("Authorization", "Basic mgr:mgrpw")
@@ -38,14 +44,14 @@ Ask expert
 Create Form
 ------------
 
-    >>> admin.open("http://localhost/portal/+/askexpert.form")
+    >>> admin.open("http://localhost/space/+/askexpert.form")
     >>> admin.getControl('Title').value = 'Some Form'
     >>> admin.getControl('Submit label').value = 'Submit question'
     >>> admin.getControl('Body text', index=0).value = 'Some Body Text'
     >>> admin.getControl('Confirm text', index=0).value = 'Some Confirm Text'
-    >>> admin.getControl('Add').click()
+    >>> admin.getControl('Publish').click()
     >>> admin.url
-    'http://localhost/portal/Form/'
+    'http://localhost/space/Form/'
 
 We add fields:
     >>> admin.open('context.html')
@@ -84,7 +90,7 @@ We add storages
     >>> admin.getControl('From email address').value = 'question@some.com'
     >>> admin.getControl(name="content.add.buttons.add").click()
     >>> admin.url
-    'http://localhost/portal/Form/MailDataStorage/'
+    'http://localhost/space/Form/MailDataStorage/'
 
 Register form submission event subscriber
 
@@ -98,11 +104,22 @@ Register form submission event subscriber
 
 We use form
 
-    >>> user.open('http://localhost/portal/Form')
+    >>> user.open('http://localhost/space/Form')
+    Traceback (most recent call last):
+    ...
+    Unauthorized: (<zojax.layout.zcml.PageletClass from <class 'zojax.askexpert.browser.form.Form'> ...>, 'browserDefault', 'zojax.askexpert.SubmitForm')
+
+We should add permission to submit form
+
+    >>> IPrincipalPermissionManager(getRootFolder()).grantPermissionToPrincipal(
+    ...     'zojax.askexpert.SubmitForm', 'zope.user')
+
+    >>> user.open('http://localhost/space/Form')
+
     >>> print user.contents
     <html>
     ...
-    <h1 class="z-form-label">Some Form</h1>
+    <h1 class="z-form-label">Some Form</h1><div class="z-form-description">Some Body Text</div>...
     ...
     </html>
 
@@ -116,7 +133,7 @@ We use form
     <div id="z-portal-statusmessage"><div class="statusMessage">Request has been processed.</div>
     ...
     ...Some Confirm Text
-    <a href="http://localhost/portal/">Return to main page</a>
+    <a href="http://localhost/">Return to main page</a>
     ...
     </html>
 
@@ -131,7 +148,7 @@ We use form
       <head><meta http-equiv="Cobtent-Language" content="en">
       </head>
       <body>
-        <b>Some Form ()</b>
+        <b>Some Form (Space)</b>
         <br>
         <table border="0" width="550" cellspacing="0" cellpadding="3">
             <tr>
@@ -161,27 +178,21 @@ We use form
 
 Form portlet
 
-    >>> admin.open('http://localhost/portal/context.html/presentation/pm-columns.test/portlets.askexpertform/index.html')
+    >>> admin.open('http://localhost/space/context.html/presentation/pm-columns.test/portlets.askexpertform/index.html')
     >>> admin.getControl('Form', index=0).displayValue = ['Some Form']
     >>> form = admin.getControl('Form', index=0).value[0]
     >>> admin.getControl('Save').click()
-    >>> admin.open('http://localhost/portal/context.html/presentation/pm-columns.test/portlets.askexpertform/index.html?form.widgets.fields:list=question&form.widgets.redirectToForm:list=true&form.buttons.save=value&form.widgets.form:list='+form)
+    >>> admin.open('http://localhost/space/context.html/presentation/pm-columns.test/portlets.askexpertform/index.html?form.widgets.fields:list=question&form.widgets.redirectToForm:list=true&form.buttons.save=value&form.widgets.form:list='+form)
 
-    >>> user.open('http://localhost/portal/portlet.html')
+    >>> user.open('http://localhost/space/portlet.html')
     >>> print user.contents
     <html>
     ...
-    ...<h2 class="z-portlet-header">Ask expert form</h2>
+    ...<h2 class="z-portlet-header">Some Form</h2>
       <div class="z-portlet-body">
         <div class="z-portlet-item">
-          <div class="z-form z-form-standard"><form action="http://localhost/portal/Form/" method="post"
-          enctype="multipart/form-data" name="form" id="form">
-      <h1 class="z-form-label">Some Form</h1>
-      <div class="z-form-description">Some Body Text</div>
-    <div class="z-form-fieldset">
-    ...
-    </div>
-    </form>
+          <div class="z-form z-form-standard"><form action="http://localhost/space/Form/" method="post" enctype="multipart/form-data" name="form" id="form">
+      <h1 class="z-form-label">Some Form</h1><div class="z-form-description">Some Body Text</div>...
     ...
     </html>
 
@@ -197,7 +208,7 @@ We see here only selected fields, not all
 After submit we get redirected to real form with preselected values
     >>> user.getControl('Submit question').click()
     >>> user.url
-    'http://localhost/portal/Form/'
+    'http://localhost/space/Form/'
 
 And we have no portlet:
     >>> '<h2 class="z-portlet-header">Form</h2>' not in user.contents

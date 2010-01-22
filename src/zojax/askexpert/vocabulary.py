@@ -65,7 +65,8 @@ class PortletFormFieldsVocabulary(FormFieldsVocabulary):
         return super(PortletFormFieldsVocabulary, self).__call__(context)
 
 def FormsVocabulary(context):
-    forms = (i for i in getSite().values() if IForm.providedBy(i))
+    forms = (i for i in component.getUtility(ICatalog).searchResults(type={'any_of': ('askexpert.form',)},
+                                                                     isDraft={'any_of': (False,)},))
     ids = component.getUtility(IIntIds)
     return SimpleVocabulary(
             [SimpleTerm(ids.getId(x), ids.getId(x), x.title) for x in forms]

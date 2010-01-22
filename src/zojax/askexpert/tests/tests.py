@@ -17,6 +17,7 @@ $Id$
 """
 import os, unittest, doctest
 from zope import interface, component, event
+from zope.security.management import newInteraction, endInteraction
 from zope.app.component.hooks import setSite
 from zope.app.testing import functional
 from zope.app.intid import IntIds
@@ -32,6 +33,7 @@ from zojax.personal.space.manager import PersonalSpaceManager
 from zojax.personal.space.interfaces import IPersonalSpaceManager
 from zojax.principal.profile.interfaces import IProfilesCategory
 from zojax.catalog.catalog import Catalog, ICatalog
+from zojax.content.space.content import ContentSpace
 from zojax.layoutform.interfaces import ILayoutFormLayer
 
 from content import Portal
@@ -67,28 +69,40 @@ def FunctionalDocFileSuite(*paths, **kw):
     def setUp(test):
         functional.FunctionalTestSetup().setUp()
 
+        newInteraction()
+
         root = functional.getRootFolder()
-        portal = Portal()
-        event.notify(ObjectCreatedEvent(portal))
-        root['portal'] = portal
-        sm = LocalSiteManager(portal)
-        portal.setSiteManager(sm)
-        setSite(portal)
-        sm = portal.getSiteManager()
-        portal['ids'] = IntIds()
-        sm.registerUtility(portal['ids'], IIntIds)
+        setSite(root)
+        sm = root.getSiteManager()
 
-        portal['catalog'] = Catalog()
-        sm.registerUtility(portal['catalog'], ICatalog)
+        # IIntIds
+        root['ids'] = IntIds()
+        sm.registerUtility(root['ids'], IIntIds)
+        root['ids'].register(root)
 
-        authconfiglet = sm.getUtility(IAuthenticationConfiglet)
-        authconfiglet.installUtility()
+        # catalog
+        root['catalog'] = Catalog()
+        sm.registerUtility(root['catalog'], ICatalog)
 
-        sm.getUtility(IAuthentication)._caching = False
+        # space
+        space = ContentSpace(title=u'Space')
+        event.notify(ObjectCreatedEvent(space))
+        root['space'] = space
 
+        # people
+        people = PersonalSpaceManager(title=u'People')
+        event.notify(ObjectCreatedEvent(people))
+        root['people'] = people
+        sm.registerUtility(root['people'], IPersonalSpaceManager)
 
+        user = sm.getUtility(IAuthentication).getPrincipal('zope.mgr')
+        people.assignPersonalSpace(user)
+        
+        user = sm.getUtility(IAuthentication).getPrincipal('zope.user')
+        people.assignPersonalSpace(user)
 
-
+        endInteraction()
+        
     kw['setUp'] = setUp
 
     kwtearDown = kw.get('tearDown')
