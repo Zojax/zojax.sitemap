@@ -11,7 +11,7 @@
 
   <interface
      name="DefaultSkin"
-     interface="zojax.persistent.fields.tests.tests.IDefaultSkin"
+     interface="zojax.askexpert.tests.tests.IDefaultSkin"
      type="zope.publisher.interfaces.browser.IBrowserSkinType" />
 
   <browser:defaultSkin name="DefaultSkin" />
