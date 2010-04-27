@@ -49,6 +49,8 @@ class FormResults(object):
 
         def getFieldData(field, fields):
             fieldId = field.__name__
+            if fieldId not in record:
+                return
             if IRichText.providedBy(field):
                 fields.append((field.title, record.pop(fieldId).text))
             elif IField.providedBy(field):
