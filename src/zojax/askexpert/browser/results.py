@@ -53,6 +53,8 @@ class FormResults(object):
                 fields.append((field.title, record.pop(fieldId).text))
             elif IField.providedBy(field):
                 fields.append((field.title, record.pop(fieldId)))
+                
+        fields_nogroup = []
 
         for grp in order.values():
             if IGroup.providedBy(grp):
@@ -61,9 +63,8 @@ class FormResults(object):
                     field = form.get(fieldId)
                     getFieldData(field, fields)
                 groups.append((grp.title, fields))
-        fields = []
-        for field in order.values():
-            getFieldData(field, fields)
-        if fields:
-            groups.append((u'', fields))
+            else:
+                getFieldData(grp, fields_nogroup)
+        if fields_nogroup:
+            groups.append((u'', fields_nogroup))
         self.dictionary = groups
