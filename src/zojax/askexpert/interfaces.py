@@ -44,6 +44,11 @@ class IForm(IItem):
         description = _(u'Form confirmation text.'),
         required = False)
 
+    nextURL = schema.TextLine(
+        title = _(u'Next URL'),
+        description = _(u'URL to redirect after submission. Preferably relative.'),
+        required = False)
+
 
 class IGroup(IItem):
     """ fields group """

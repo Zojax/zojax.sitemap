@@ -107,6 +107,9 @@ class Form(group.GroupForm, PageletForm):
             if self.context.confirm:
                 self.confirm = True
 
+            if self.context.nextURL:
+                self.redirect(self.context.nextURL)
+
     def update(self):
         super(Form, self).update()
         self.site_url = '%s/'%absoluteURL(getSite(), self.request)
