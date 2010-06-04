@@ -33,7 +33,7 @@ class Form(ContentContainer):
     confirm = RichTextProperty(IForm['confirm'])
     body = RichTextProperty(IForm['body'])
     submitLabel = FieldProperty(IForm['submitLabel'])
-
+    nextURL = FieldProperty(IForm['nextURL'])
 
     def processData(self, record, request):
         for value in self.values():
