@@ -50,8 +50,10 @@ class BaseForm(group.GroupForm):
                     print repr(id)
                     try:
                         field = ids.getObject(id)
-                    except (TypeError, KeyError):
+                    except (TypeError, KeyError), e:
+                        print e
                         continue
+                    print 'got', field
                     fieldId = field
                     field = form.get(fieldId)
                     if IField.providedBy(field):
