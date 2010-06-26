@@ -47,7 +47,7 @@ class BaseForm(group.GroupForm):
             print grp
             if IGroup.providedBy(grp):
                 for id in grp.fields:
-                    print id
+                    print repr(id)
                     try:
                         field = ids.getObject(id)
                     except (TypeError, KeyError):
