@@ -44,26 +44,19 @@ class BaseForm(group.GroupForm):
 
         groupFields = []
         for grp in order.values():
-            print grp
             if IGroup.providedBy(grp):
                 for id in grp.fields:
-                    print repr(id)
                     try:
                         field = ids.getObject(id)
                     except (TypeError, KeyError), e:
-                        print e
                         continue
-                    print 'got', field
-                    fieldId = field
-                    field = form.get(fieldId)
+                    fieldId = field.__name__
                     if IField.providedBy(field):
-                        groupFields.append(id)
+                        groupFields.append(fieldId)
 
         fields = []
-        print groupFields
         for field in order.values():
-            ids.getId(removeAllProxies(field))
-            if IField.providedBy(field) and ids.getId(removeAllProxies(field)) not in groupFields:
+            if IField.providedBy(field) and field.__name__ not in groupFields:
                 fields.append(field)
         return Fields(*fields)
 
@@ -80,7 +73,7 @@ class BaseForm(group.GroupForm):
                         field = ids.getObject(id)
                     except (TypeError, KeyError):
                         continue
-                    fieldId = field
+                    fieldId = field.__name__
                     if IField.providedBy(field):
                         fields.append(field)
                 fields = Fields(*fields)
