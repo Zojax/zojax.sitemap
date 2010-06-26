@@ -56,7 +56,9 @@ class BaseForm(group.GroupForm):
                         groupFields.append(id)
 
         fields = []
+        print groupFields
         for field in order.values():
+            ids.getId(removeAllProxies(field))
             if IField.providedBy(field) and ids.getId(removeAllProxies(field)) not in groupFields:
                 fields.append(field)
         return Fields(*fields)
