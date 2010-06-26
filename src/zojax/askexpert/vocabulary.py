@@ -16,6 +16,7 @@
 $Id$
 """
 from zope import interface, component
+from zope.proxy import removeAllProxies
 from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleTerm, SimpleVocabulary
 from zope.app.intid.interfaces import IIntIds
@@ -50,7 +51,7 @@ class FormFieldsVocabulary(object):
         fields = []
         for name, field in form.items():
             if IField.providedBy(field):
-                fields.append((field.title, ids.getId(field)))
+                fields.append((field.title, ids.getId(removeAllProxies(field))))
 
         fields.sort()
         return Vocabulary(
