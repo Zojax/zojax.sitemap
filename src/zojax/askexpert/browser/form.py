@@ -17,6 +17,7 @@ $Id$
 """
 from zope import interface, event, component
 from zope.security.proxy import removeSecurityProxy
+from zope.proxy import removeAllProxies
 from zope.cachedescriptors.property import Lazy
 from zope.app.pagetemplate import ViewPageTemplateFile
 from zope.app.component.hooks import getSite
@@ -33,22 +34,7 @@ from zojax.persistent.fields.interfaces import IField
 from zojax.askexpert.interfaces import _, IGroup, FormSubmittedEvent
 
 
-class Form(group.GroupForm, PageletForm):
-
-    confirm = False
-    ignoreContext = True
-    formErrorsMessage = _('There were some errors.')
-    confirmTemplate = ViewPageTemplateFile('confirm.pt')
-    site_url = None
-
-    @property
-    def label(self):
-        return self.context.title
-
-    @property
-    def description(self):
-        if self.context.body is not None:
-            return self.context.body.cooked
+class BaseForm(group.GroupForm):
 
     @Lazy
     def fields(self):
@@ -71,7 +57,7 @@ class Form(group.GroupForm, PageletForm):
 
         fields = []
         for field in order.values():
-            if IField.providedBy(field) and field.__name__ not in groupFields:
+            if IField.providedBy(field) and ids.getId(removeAllProxies(field)) not in groupFields:
                 fields.append(field)
         return Fields(*fields)
 
@@ -98,6 +84,24 @@ class Form(group.GroupForm, PageletForm):
                                'description': grp.description, 'fields': fields})
                 groups.append(grpCls)
         return groups
+
+
+class Form(BaseForm, PageletForm):
+
+    confirm = False
+    ignoreContext = True
+    formErrorsMessage = _('There were some errors.')
+    confirmTemplate = ViewPageTemplateFile('confirm.pt')
+    site_url = None
+
+    @property
+    def label(self):
+        return self.context.title
+
+    @property
+    def description(self):
+        if self.context.body is not None:
+            return self.context.body.cooked
 
     def render(self):
         if self.confirm:
@@ -139,50 +143,11 @@ class grpClass(group.Group):
         return self.__parent__.getContent()
 
 
-class DisplayForm(group.GroupForm, PageletDisplayForm):
+class DisplayForm(BaseForm, PageletDisplayForm):
 
     @property
     def label(self):
         return self.context.title
-
-    @Lazy
-    def fields(self):
-        form = self.context
-        order = IOrder(form)
-
-        groupFields = []
-        for grp in order.values():
-            if IGroup.providedBy(grp):
-                for fieldId in grp.fields:
-                    field = form.get(fieldId)
-                    if IField.providedBy(field):
-                        groupFields.append(fieldId)
-
-        fields = []
-        for field in order.values():
-            if IField.providedBy(field) and field.__name__ not in groupFields:
-                fields.append(field)
-        return Fields(*fields)
-
-    @Lazy
-    def groups(self):
-        form = self.context
-
-        groups = []
-        for grp in self.context.values():
-            if IGroup.providedBy(grp):
-                fields = []
-                for fieldId in grp.fields:
-                    field = form.get(fieldId)
-                    if IField.providedBy(field):
-                        fields.append(field)
-                fields = Fields(*fields)
-
-                grpCls = type(str(grp.__name__), (grpClass,),
-                              {'label': grp.title,
-                               'description': grp.description, 'fields': fields})
-                groups.append(grpCls)
-        return groups
 
     def getContent(self):
         return self._context_data
