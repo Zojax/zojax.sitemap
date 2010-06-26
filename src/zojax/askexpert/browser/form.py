@@ -44,8 +44,10 @@ class BaseForm(group.GroupForm):
 
         groupFields = []
         for grp in order.values():
+            print grp
             if IGroup.providedBy(grp):
                 for id in grp.fields:
+                    print id
                     try:
                         field = ids.getObject(id)
                     except (TypeError, KeyError):
