@@ -47,14 +47,26 @@ class PortletForm(Form):
     @Lazy
     def fields(self):
         ids = getUtility(IIntIds)
-        return super(PortletForm, self).fields.select(*[ids.getObject(i).__name__ for i in self.portlet.fields])
+        fields = []
+        for i in self.portlet.fields:
+            try:
+                fields.append(ids.getObject(i).__name__)
+            except (TypeError, KeyError):
+                continue
+        return super(PortletForm, self).fields.select(*fields)
 
     @Lazy
     def groups(self):
         res = super(PortletForm, self).groups
         ids = getUtility(IIntIds)
+        fields = []
+        for i in self.portlet.fields:
+            try:
+                fields.append(ids.getObject(i).__name__)
+            except (TypeError, KeyError):
+                continue
         for i in res:
-            i.fields = i.fields.select(*[ids.getObject(i).__name__ for i in self.portlet.fields])
+            i.fields = i.fields.select(*fields)
         return res
 
     @button.buttonAndHandler(_(u'Submit'), name='submit.portlet')

@@ -60,7 +60,10 @@ class Form(group.GroupForm, PageletForm):
         for grp in order.values():
             if IGroup.providedBy(grp):
                 for id in grp.fields:
-                    field = ids.getObject(id)
+                    try:
+                        field = ids.getObject(id)
+                    except (TypeError, KeyError):
+                        continue
                     fieldId = field
                     field = form.get(fieldId)
                     if IField.providedBy(field):
@@ -81,7 +84,10 @@ class Form(group.GroupForm, PageletForm):
             if IGroup.providedBy(grp):
                 fields = []
                 for id in grp.fields:
-                    field = ids.getObject(id)
+                    try:
+                        field = ids.getObject(id)
+                    except (TypeError, KeyError):
+                        continue
                     fieldId = field
                     if IField.providedBy(field):
                         fields.append(field)
