@@ -53,7 +53,7 @@ class BaseForm(group.GroupForm):
                     fieldId = field
                     field = form.get(fieldId)
                     if IField.providedBy(field):
-                        groupFields.append(fieldId)
+                        groupFields.append(id)
 
         fields = []
         for field in order.values():
