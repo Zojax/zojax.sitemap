@@ -41,6 +41,7 @@ class FormFieldsVocabulary(object):
 
     def __call__(self, context):
         form = context
+        ids = component.getUtility(IIntIds)
         while not IForm.providedBy(form):
             form = getattr(form, '__parent__', None)
             if form is None:
@@ -49,11 +50,11 @@ class FormFieldsVocabulary(object):
         fields = []
         for name, field in form.items():
             if IField.providedBy(field):
-                fields.append((field.title, field.__name__))
+                fields.append((field.title, ids.getId(field)))
 
         fields.sort()
         return Vocabulary(
-            [SimpleTerm(name, name, title) for title, name in fields])
+            [SimpleTerm(id, id, title) for title, id in fields])
 
 class PortletFormFieldsVocabulary(FormFieldsVocabulary):
 

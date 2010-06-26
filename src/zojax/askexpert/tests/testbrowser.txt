@@ -8,6 +8,7 @@ Ask expert
     >>> from zope.securitypolicy.interfaces import IPrincipalPermissionManager
     >>> from zope.app.security.interfaces import IAuthentication
     >>> from zojax.principal.profile.interfaces import IPersonalProfile
+    >>> from zope.app.intid.interfaces import IIntIds
 
     >>> root = getRootFolder()
     >>> setSite(root)
@@ -182,7 +183,8 @@ Form portlet
     >>> admin.getControl('Form', index=0).displayValue = ['Some Form']
     >>> form = admin.getControl('Form', index=0).value[0]
     >>> admin.getControl('Save').click()
-    >>> admin.open('http://localhost/space/context.html/presentation/pm-columns.test/portlets.askexpertform/index.html?form.widgets.fields:list=question&form.widgets.redirectToForm:list=true&form.buttons.save=value&form.widgets.form:list='+form)
+    >>> id = component.getUtility(IIntIds, context=root).getId(root['space']['Form']['question'])
+    >>> admin.open('http://localhost/space/context.html/presentation/pm-columns.test/portlets.askexpertform/index.html?form.widgets.fields:list='+str(id)+'&form.widgets.redirectToForm:list=true&form.buttons.save=value&form.widgets.form:list='+form)
 
     >>> user.open('http://localhost/space/portlet.html')
     >>> print user.contents

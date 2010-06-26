@@ -15,12 +15,13 @@
 
 $Id$
 """
-from zope import interface, event
+from zope import interface, event, component
 from zope.security.proxy import removeSecurityProxy
 from zope.cachedescriptors.property import Lazy
 from zope.app.pagetemplate import ViewPageTemplateFile
 from zope.app.component.hooks import getSite
 from zope.traversing.browser import absoluteURL
+from zope.app.intid.interfaces import IIntIds
 
 from z3c.form import group
 
@@ -53,11 +54,14 @@ class Form(group.GroupForm, PageletForm):
     def fields(self):
         form = self.context
         order = IOrder(form)
+        ids = component.getUtility(IIntIds)
 
         groupFields = []
         for grp in order.values():
             if IGroup.providedBy(grp):
-                for fieldId in grp.fields:
+                for id in grp.fields:
+                    field = ids.getObject(id)
+                    fieldId = field
                     field = form.get(fieldId)
                     if IField.providedBy(field):
                         groupFields.append(fieldId)
@@ -71,13 +75,14 @@ class Form(group.GroupForm, PageletForm):
     @Lazy
     def groups(self):
         form = self.context
-
+        ids = component.getUtility(IIntIds)
         groups = []
         for grp in self.context.values():
             if IGroup.providedBy(grp):
                 fields = []
-                for fieldId in grp.fields:
-                    field = form.get(fieldId)
+                for id in grp.fields:
+                    field = ids.getObject(id)
+                    fieldId = field
                     if IField.providedBy(field):
                         fields.append(field)
                 fields = Fields(*fields)

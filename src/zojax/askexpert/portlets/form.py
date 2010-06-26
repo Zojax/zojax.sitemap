@@ -46,13 +46,15 @@ class PortletForm(Form):
 
     @Lazy
     def fields(self):
-        return super(PortletForm, self).fields.select(*self.portlet.fields)
+        ids = getUtility(IIntIds)
+        return super(PortletForm, self).fields.select(*[ids.getObject(i).__name__ for i in self.portlet.fields])
 
     @Lazy
     def groups(self):
         res = super(PortletForm, self).groups
+        ids = getUtility(IIntIds)
         for i in res:
-            i.fields = i.fields.select(*self.portlet.fields)
+            i.fields = i.fields.select(*[ids.getObject(i).__name__ for i in self.portlet.fields])
         return res
 
     @button.buttonAndHandler(_(u'Submit'), name='submit.portlet')
