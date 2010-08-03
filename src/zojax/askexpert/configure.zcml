@@ -7,12 +7,12 @@
      id="zojax.AddAskExpert"
      title="Add ask expert"
      description="Allow add ask expert forms to portal." />
-     
+
   <permission
      id="zojax.askexpert.SubmitForm"
      title="Submit ask expert form" />
-     
-     
+
+
   <zojax:permission
        permission="zojax.askexpert.SubmitForm"
        category="zojax.content.permissions.interfaces.IGeneralSettingsPermission" />
@@ -36,6 +36,7 @@
     <implements interface="zojax.content.type.interfaces.IAnnotatableOrder" />
     <implements interface="zojax.content.type.interfaces.IContainerContentsAware" />
     <implements interface="zojax.content.type.interfaces.ISearchableContent" />
+    <implements interface="zojax.content.type.interfaces.ITitleBasedName" />
 
     <require
        permission="zope.View"
@@ -119,7 +120,7 @@
      managepermission="zojax.ManageContentPermission"
      class="zojax.content.permissions.permission.ContentPermission"
      category="zojax.content.permissions.interfaces.IAddPermission" />
-     
+
   <zojax:contentpermission
      contenttype="askexpert.form"
      permission="zojax.askexpert.SubmitForm"
