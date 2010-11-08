@@ -1,5 +1,5 @@
 =============
-Ask expert
+Sitemap
 =============
 
     >>> from zope import component
@@ -45,7 +45,7 @@ Ask expert
 Create Form
 ------------
 
-    >>> admin.open("http://localhost/space/+/askexpert.form")
+    >>> admin.open("http://localhost/space/+/sitemap.form")
     >>> admin.getControl('Title').value = 'Some Form'
     >>> admin.getControl('Submit label').value = 'Submit question'
     >>> admin.getControl('Body text', index=0).value = 'Some Body Text'
@@ -96,7 +96,7 @@ We add storages
 Register form submission event subscriber
 
     >>> submitted_data = {}
-    >>> from zojax.askexpert.interfaces import IFormSubmittedEvent
+    >>> from zojax.sitemap.interfaces import IFormSubmittedEvent
     >>> @component.adapter(IFormSubmittedEvent)
     ... def handler(e):
     ...     global submitted_data
@@ -108,12 +108,12 @@ We use form
     >>> user.open('http://localhost/space/Form')
     Traceback (most recent call last):
     ...
-    Unauthorized: (<zojax.layout.zcml.PageletClass from <class 'zojax.askexpert.browser.form.Form'> ...>, 'browserDefault', 'zojax.askexpert.SubmitForm')
+    Unauthorized: (<zojax.layout.zcml.PageletClass from <class 'zojax.sitemap.browser.form.Form'> ...>, 'browserDefault', 'zojax.sitemap.SubmitForm')
 
 We should add permission to submit form
 
     >>> IPrincipalPermissionManager(getRootFolder()).grantPermissionToPrincipal(
-    ...     'zojax.askexpert.SubmitForm', 'zope.user')
+    ...     'zojax.sitemap.SubmitForm', 'zope.user')
 
     >>> user.open('http://localhost/space/Form')
 
@@ -179,12 +179,12 @@ We should add permission to submit form
 
 Form portlet
 
-    >>> admin.open('http://localhost/space/context.html/presentation/pm-columns.test/portlets.askexpertform/index.html')
+    >>> admin.open('http://localhost/space/context.html/presentation/pm-columns.test/portlets.sitemapform/index.html')
     >>> admin.getControl('Form', index=0).displayValue = ['Some Form']
     >>> form = admin.getControl('Form', index=0).value[0]
     >>> admin.getControl('Save').click()
     >>> id = component.getUtility(IIntIds, context=root).getId(root['space']['Form']['question'])
-    >>> admin.open('http://localhost/space/context.html/presentation/pm-columns.test/portlets.askexpertform/index.html?form.widgets.fields:list='+str(id)+'&form.widgets.redirectToForm:list=true&form.buttons.save=value&form.widgets.form:list='+form)
+    >>> admin.open('http://localhost/space/context.html/presentation/pm-columns.test/portlets.sitemapform/index.html?form.widgets.fields:list='+str(id)+'&form.widgets.redirectToForm:list=true&form.buttons.save=value&form.widgets.form:list='+form)
 
     >>> user.open('http://localhost/space/portlet.html')
     >>> print user.contents

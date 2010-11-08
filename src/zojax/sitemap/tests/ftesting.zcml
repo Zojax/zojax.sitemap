@@ -4,14 +4,14 @@
    i18n_domain="zope">
 
   <include package="zojax.autoinclude" file="meta.zcml" />
-  <includeAllDependencies package="zojax.askexpert" extras="test" />
+  <includeAllDependencies package="zojax.sitemap" extras="test" />
 
-  <includeOverrides package="zojax.askexpert.tests" />
-  <includeOverrides package="zojax.askexpert.tests" file="overrides.zcml" />
+  <includeOverrides package="zojax.sitemap.tests" />
+  <includeOverrides package="zojax.sitemap.tests" file="overrides.zcml" />
 
   <interface
      name="DefaultSkin"
-     interface="zojax.askexpert.tests.tests.IDefaultSkin"
+     interface="zojax.sitemap.tests.tests.IDefaultSkin"
      type="zope.publisher.interfaces.browser.IBrowserSkinType" />
 
   <browser:defaultSkin name="DefaultSkin" />

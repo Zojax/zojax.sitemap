@@ -1,0 +1,24 @@
+<configure
+   xmlns="http://namespaces.zope.org/zope"
+   xmlns:zojax="http://namespaces.zope.org/zojax"
+   xmlns:browser="http://namespaces.zope.org/browser"
+   i18n_domain="zojax.sitemap">
+
+  <zojax:pagelet
+     name="sitemap.html"
+     for="zope.app.component.interfaces.ISite"
+     class=".sitemap.SitemapView"
+     template="sitemap.pt"
+     permission="zope.View" />
+
+  <zojax:pagelet
+     for="..interfaces.ISitemap"
+     type="pagelet"
+     name="sitemap.view"
+     template="subsitemap.pt"
+     permission="zope.View"
+      />
+
+  <include file="personalbar.zcml" />
+  
+</configure>

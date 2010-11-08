@@ -43,17 +43,5 @@
        attributes="setSiteManager" />
   </class>
 
-  <zojax:portletManager
-     name="columns.test"
-     title="Test column portlets"
-     for="*"
-     schema="zojax.askexpert.tests.interfaces.IContentPortletsManagerConfiguration"
-     />
-
-
-  <zojax:pagelet
-   for="*"
-   name="portlet.html"
-   template="portlet.pt" />
 
 </configure>

@@ -1,0 +1,2 @@
+<a tal:attributes="href string:${view/manager/portal_url}/sitemap.html"
+   i18n:domain="zojax.sitemap" i18n:translate="">Sitemap</a>

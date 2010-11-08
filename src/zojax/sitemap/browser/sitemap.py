@@ -15,15 +15,12 @@
 
 $Id$
 """
-from zope import schema
+from zope import interface, component
 
-from zojax.content.space.portlets.interfaces import IContentPortletsManagerConfiguration
+from zojax.sitemap.interfaces import _, ISitemap
 
 
-class IContentPortletsManagerConfiguration(IContentPortletsManagerConfiguration):
+class SitemapView(object):
 
-    portletIds = schema.Tuple(
-        title = u'Portlets',
-        value_type=schema.Choice(vocabulary = "zojax portlets"),
-        default = ('portlets.askexpertform',),
-        required = True)
+    def update(self):
+        self.sitemap = component.getMultiAdapter((self.context, self.request), ISitemap)

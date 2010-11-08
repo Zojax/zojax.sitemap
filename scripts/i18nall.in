@@ -10,4 +10,4 @@ update_egg()
     msgfmt ${1}/locales/ru/LC_MESSAGES/${2}.po -o ${1}/locales/ru/LC_MESSAGES/${2}.mo --no-hash
 }
 
-update_egg src/zojax/askexpert  zojax.askexpert;
+update_egg src/zojax/sitemap  zojax.sitemap;

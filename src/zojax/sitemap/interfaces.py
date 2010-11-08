@@ -15,13 +15,16 @@
 
 $Id$
 """
-from zope import interface
+from zope import interface, schema
+from zope.i18nmessageid import MessageFactory
+from z3c.schema.email import RFC822MailAddress
+from z3c.schema.email.interfaces import IRFC822MailAddress
+from zojax.richtext.field import RichText
+from zojax.content.type.interfaces import IItem, IContent, IContentType
+
+_ = MessageFactory('zojax.sitemap')
 
 
-class IFormResults(interface.Interface):
-    """ """
-
-    dictionary = interface.Attribute('dictionary')
-
-    def update():
-        """ update """
+class ISitemap(schema.interfaces.IIterable):
+    """ sitemap """
+    
