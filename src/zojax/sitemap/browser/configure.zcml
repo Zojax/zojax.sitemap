@@ -4,6 +4,9 @@
    xmlns:browser="http://namespaces.zope.org/browser"
    i18n_domain="zojax.sitemap">
 
+  <!-- base adapter -->
+  <adapter factory=".sitemap.BaseSitemap" />
+
   <zojax:pagelet
      name="sitemap.html"
      for="zope.app.component.interfaces.ISite"
@@ -12,12 +15,18 @@
      permission="zope.View" />
 
   <zojax:pagelet
-     for="..interfaces.ISitemap"
+     for="*"
      type="pagelet"
      name="sitemap.view"
      template="subsitemap.pt"
      permission="zope.View"
       />
+
+  <!-- styles -->
+  <zojax:resourceinclude
+     name="zojax-sitemap.css"
+     library="zojax"
+     type="stylesheet" file="styles.css" filetype="zrt" />
 
   <include file="personalbar.zcml" />
   

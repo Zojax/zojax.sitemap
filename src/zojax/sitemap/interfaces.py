@@ -28,3 +28,4 @@ _ = MessageFactory('zojax.sitemap')
 class ISitemap(schema.interfaces.IIterable):
     """ sitemap """
     
+    items = interface.Attribute('Items')

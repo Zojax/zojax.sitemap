@@ -1,8 +1,8 @@
 <li>
   <a tal:attributes="href context/url" tal:content="context/title" />
-  <ul tal:condition="python:len(context)">
-    <tal:block repeat="subitem item">
-      <tal:block content="structure subitem/@@pagelet/+sitemap.view" />
+  <ul>
+    <tal:block repeat="subitem context/items">
+      <tal:block define="context subitem" content="structure pagelet:+sitemap.view" />
     </tal:block>
   </ul>
 </li>

@@ -1,10 +1,12 @@
-<ul>
-<li tal:repeat="item view/sitemap">
-  <span><a tal:attributes="href item/url" tal:content="item/title" /></span>
-  <ul class="globalnav-submenu" tal:condition="python:len(item)">
-    <tal:block repeat="subitem item">
-      <tal:block content="structure subitem/@@pagelet/+sitemap.view" />
-    </tal:block>
+<div class="z-sitemap">
+  <ul>
+    <li tal:repeat="item view/sitemap/items">
+      <span><a tal:attributes="href item/url" tal:content="item/title" /></span>
+      <ul>
+        <tal:block repeat="subitem item/items">
+          <tal:block define="context subitem" content="structure pagelet:+sitemap.view" />
+        </tal:block>
+      </ul>
+    </li>
   </ul>
-</li>
-</ul>
+</div>
