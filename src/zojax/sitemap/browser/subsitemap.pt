@@ -1,6 +1,6 @@
 <li>
   <a tal:attributes="href context/url" tal:content="context/title" />
-  <ul>
+  <ul tal:condition="context/items">
     <tal:block repeat="subitem context/items">
       <tal:block define="context subitem" content="structure pagelet:+sitemap.view" />
     </tal:block>

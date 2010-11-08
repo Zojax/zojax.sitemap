@@ -1,8 +1,8 @@
-<div class="z-sitemap">
-  <ul>
-    <li tal:repeat="item view/sitemap/items">
+<div class="z-sitemap" tal:define="items view/sitemap/items">
+  <ul tal:condition="items">
+    <li tal:repeat="item items">
       <span><a tal:attributes="href item/url" tal:content="item/title" /></span>
-      <ul>
+      <ul tal:condition="item/items">
         <tal:block repeat="subitem item/items">
           <tal:block define="context subitem" content="structure pagelet:+sitemap.view" />
         </tal:block>

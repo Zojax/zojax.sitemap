@@ -41,17 +41,15 @@ class BaseSitemap(object):
         
     @property
     def items(self):
-        return self._getItems()
-    
-    def _getItems(self, context = None):
-        if context is None:
-            context = getSite()
-        container = IContentContainer(context, None)
+        res = []
+        container = IContentContainer(self.context, None)
         if container is not None:
             for value in container.values():
                 if checkPermission('zope.View', value):
                     item = IItem(value, None)
                     if item is not None:
-                        yield {'title': item.title,
+                        items = component.queryMultiAdapter((item, self.request), ISitemap)
+                        res.append({'title': item.title,
                                'url': absoluteURL(item, self.request),
-                               'items': self._getItems(value)}
+                               'items': getattr(items, 'items', [])})
+        return res
