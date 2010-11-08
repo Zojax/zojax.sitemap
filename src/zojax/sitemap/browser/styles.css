@@ -2,5 +2,26 @@
 
 @media all {
 
+.z-sitemap a {
+  display: block;
+  padding: 2px 5px;
+  text-decoration: none;
+}
+.z-sitemap a:hover {
+  background-color: #efefef;
+}
+.z-sitemap ul {
+  margin: 0;
+  list-style: none;
+  line-height: 1.4;
+}
+.z-sitemap ul li {
+  margin: 0;
+}
+.z-sitemap ul ul {
+  margin: 0 0 0 10px;
+  padding: 0 0 0 10px;
+  border-left: 4px solid #efefef;
+}
 
 }
