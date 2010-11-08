@@ -1,5 +1,5 @@
 <div class="z-sitemap" tal:define="items view/sitemap/items">
-  <h1 i18n:translate="">Sitemap - <tal:block content="context/title"/></h1>
+  <h1 i18n:translate="">Sitemap - <tal:block i18n:name="site_title" content="context/title"/></h1>
   <ul tal:condition="items">
     <li tal:repeat="item items">
       <span><a tal:attributes="href item/url" tal:content="item/title" /></span>
