@@ -9,4 +9,10 @@
      for="zope.app.component.interfaces.ISite"
      template="layoutportal.pt" />
 
+
+    <class class="zojax.sitemap.browser.sitemap.BaseSitemap">
+        <allow attributes="items" />
+
+    </class>
+
 </configure>

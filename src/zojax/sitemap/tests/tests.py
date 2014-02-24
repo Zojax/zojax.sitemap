@@ -17,6 +17,8 @@ $Id$
 """
 import os, unittest, doctest
 from zope import interface, component, event
+from zojax.content.type.interfaces import IContentContainer
+from zope.location.interfaces import IPossibleSite
 from zope.security.management import newInteraction, endInteraction
 from zope.app.component.hooks import setSite
 from zope.app.testing import functional
@@ -24,24 +26,33 @@ from zope.app.intid import IntIds
 from zope.app.intid.interfaces import IIntIds
 from zope.app.security.interfaces import IAuthentication
 from zope.lifecycleevent import ObjectCreatedEvent
-from zope.app.container.contained import ObjectAddedEvent
 from zope.app.rotterdam import Rotterdam
-from zope.app.component.site import LocalSiteManager, SiteManagementFolder
-
-from zojax.authentication.interfaces import IAuthenticationConfiglet
 from zojax.personal.space.manager import PersonalSpaceManager
 from zojax.personal.space.interfaces import IPersonalSpaceManager
-from zojax.principal.profile.interfaces import IProfilesCategory
 from zojax.catalog.catalog import Catalog, ICatalog
 from zojax.content.space.content import ContentSpace
 from zojax.layoutform.interfaces import ILayoutFormLayer
+from zope.app.component.interfaces import ISite
+from zope.app.folder.folder import Folder
+from zope.app.component.site import LocalSiteManager, SiteManagementFolder
 
 from content import Portal
-
 
 zojaxsitemapLayer = functional.ZCMLLayer(
     os.path.join(os.path.split(__file__)[0], 'ftesting.zcml'),
     __name__, 'zojaxsitemapLayer', allow_teardown=True)
+
+
+class TestSite(Folder):
+    interface.implements(IPossibleSite, ISite, IContentContainer)
+    title = u'Tets site'
+
+    def setSiteManager(self, sm):
+       self._sm = sm
+       setattr(self._sm, 'title', self.title)
+
+    def getSiteManager(self):
+        return self._sm
 
 
 class PrincipalInformation(object):
@@ -74,6 +85,7 @@ def FunctionalDocFileSuite(*paths, **kw):
         root = functional.getRootFolder()
         setSite(root)
         sm = root.getSiteManager()
+        setattr(root, 'title', 'Site Title')
 
         # IIntIds
         root['ids'] = IntIds()
@@ -89,6 +101,12 @@ def FunctionalDocFileSuite(*paths, **kw):
         event.notify(ObjectCreatedEvent(space))
         root['space'] = space
 
+        #space
+        site = TestSite()
+        site.setSiteManager(LocalSiteManager(root))
+        event.notify(ObjectCreatedEvent(site))
+        root['site'] = site
+
         # people
         people = PersonalSpaceManager(title=u'People')
         event.notify(ObjectCreatedEvent(people))
@@ -100,6 +118,9 @@ def FunctionalDocFileSuite(*paths, **kw):
         
         user = sm.getUtility(IAuthentication).getPrincipal('zope.user')
         people.assignPersonalSpace(user)
+
+
+
 
         endInteraction()
         

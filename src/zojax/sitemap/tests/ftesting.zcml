@@ -5,8 +5,6 @@
 
   <include package="zojax.autoinclude" file="meta.zcml" />
   <includeAllDependencies package="zojax.sitemap" extras="test" />
-
-  <includeOverrides package="zojax.sitemap.tests" />
   <includeOverrides package="zojax.sitemap.tests" file="overrides.zcml" />
 
   <interface
@@ -23,6 +21,19 @@
      for="zope.app.security.principalregistry.Principal"
      provides="zojax.principal.profile.interfaces.IPrincipalInformation"
      factory="zojax.persistent.fields.tests.tests.PrincipalInformation" />
+
+  <class class="zojax.sitemap.tests.tests.TestSite">
+    <implements interface="zope.app.component.interfaces.ISite" />
+    <implements interface="zojax.content.type.interfaces.IContentContainer" />
+
+    <allow attributes="__getitem__" />
+    <allow attributes="get" />
+    <allow attributes="title" />
+    <allow attributes="items" />
+    <allow attributes="url" />
+    <allow attributes="values" />
+  </class>
+
 
   <role id="zope.Anonymous" title="Everybody"
         description="All users have this role implicitly" />
